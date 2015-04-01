@@ -6,7 +6,10 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.World;
+import net.minecraftforge.event.entity.item.ItemExpireEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
+import toops.tsteelworks.common.entity.EntityToaster;
 import toops.tsteelworks.lib.ModsData;
 
 public class TSEventHandler {
@@ -42,5 +45,20 @@ public class TSEventHandler {
 
 			evt.world.setBlockToAir(hitX, hitY, hitZ);
 		}
+	}
+
+	@SubscribeEvent
+	public void createToaster(ItemExpireEvent event) {
+		if (!ConfigCore.toasterEnabled || event.isCanceled()) return;
+		if (!event.entityItem.getEntityItem().getItem().equals(Items.bread)) return;
+
+		final double x = event.entityItem.posX;
+		final double y = event.entityItem.posY;
+		final double z = event.entityItem.posZ;
+		final World world = event.entityItem.worldObj;
+
+		final EntityToaster toaster = new EntityToaster(world);
+		toaster.setPosition(x, y, z);
+		world.spawnEntityInWorld(toaster);
 	}
 }

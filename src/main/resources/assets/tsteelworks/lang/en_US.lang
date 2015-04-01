@@ -19,8 +19,9 @@ item.tsteelworks.bucket.Steam.name=Bucket 'O Steam
 item.tsteelworks.bucket.Limestone.name=Molten Limestone Bucket
 item.tsteelworks.bucket.Cement.name=Wet Cement Bucket
 
-entity.HighGolem.name=High Golem
-entity.SteelGolem.name=Steel Golem
+entity.TSteelworks.HighGolem.name=High Golem
+entity.TSteelworks.SteelGolem.name=Steel Golem
+entity.TSteelworks.Toaster.name=Toaster ?
 
 tile.tsteelworks.blocks.charcoal.name=Block of Charcoal
 block.storage.dust.gunpowder.name=Block of Gunpowder

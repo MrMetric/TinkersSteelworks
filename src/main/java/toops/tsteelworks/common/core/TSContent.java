@@ -19,10 +19,12 @@ import toops.tsteelworks.TSteelworks;
 import toops.tsteelworks.api.highoven.IMixAgentRegistry;
 import toops.tsteelworks.common.blocks.*;
 import toops.tsteelworks.common.blocks.logic.*;
+import toops.tsteelworks.common.entity.EntityToaster;
 import toops.tsteelworks.common.entity.HighGolem;
 import toops.tsteelworks.common.entity.SteelGolem;
 import toops.tsteelworks.common.entity.projectile.EntityLimestoneBrick;
 import toops.tsteelworks.common.entity.projectile.EntityScorchedBrick;
+import toops.tsteelworks.common.entity.projectile.EntityToastBrick;
 import toops.tsteelworks.common.items.TSArmorBasic;
 import toops.tsteelworks.common.items.TSManual;
 import toops.tsteelworks.common.items.TSMaterialItem;
@@ -249,5 +251,12 @@ public class TSContent {
 
 		EntityRegistry.registerModEntity(HighGolem.class, "HighGolem", id++, TSteelworks.instance, 80, 3, true); // colors: 0x171717, 0x614D3C
 		EntityRegistry.registerModEntity(SteelGolem.class, "SteelGolem", id++, TSteelworks.instance, 80, 3, true); // colors: 0x171717, 0x614D3C
+
+		if (ConfigCore.toasterEnabled) {
+			EntityRegistry.registerModEntity(EntityToastBrick.class, "ToastBrick", id++, TSteelworks.instance, 32, 3, true);
+			EntityRegistry.registerModEntity(EntityToaster.class, "Toaster", id++, TSteelworks.instance, 80, 3, true);
+		} else {
+			id += 2;
+		}
 	}
 }

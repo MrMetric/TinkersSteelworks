@@ -5,7 +5,10 @@ import mantle.books.BookData;
 import mantle.client.MProxyClient;
 import mantle.lib.client.MantleClientRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.entity.RenderChicken;
 import net.minecraft.client.renderer.entity.RenderSnowball;
+import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -20,15 +23,19 @@ import tconstruct.world.TinkerWorld;
 import toops.tsteelworks.client.block.DeepTankRender;
 import toops.tsteelworks.client.entity.RenderHighGolem;
 import toops.tsteelworks.client.entity.RenderSteelGolem;
+import toops.tsteelworks.client.entity.RenderToaster;
 import toops.tsteelworks.client.pages.TSHighOvenPage;
 import toops.tsteelworks.client.pages.TSPicturePage;
 import toops.tsteelworks.client.particle.TSParticle;
+import toops.tsteelworks.common.core.ConfigCore;
 import toops.tsteelworks.common.core.TSCommonProxy;
 import toops.tsteelworks.common.core.TSContent;
+import toops.tsteelworks.common.entity.EntityToaster;
 import toops.tsteelworks.common.entity.HighGolem;
 import toops.tsteelworks.common.entity.SteelGolem;
 import toops.tsteelworks.common.entity.projectile.EntityLimestoneBrick;
 import toops.tsteelworks.common.entity.projectile.EntityScorchedBrick;
+import toops.tsteelworks.common.entity.projectile.EntityToastBrick;
 import toops.tsteelworks.lib.TSRepo;
 import toops.tsteelworks.lib.registry.TSClientRegistry;
 
@@ -200,6 +207,12 @@ public class TSClientProxy extends TSCommonProxy {
 		RenderingRegistry.registerEntityRenderingHandler(SteelGolem.class, new RenderSteelGolem());
 		RenderingRegistry.registerEntityRenderingHandler(EntityScorchedBrick.class, new RenderSnowball(TSContent.materialsTS));
 		RenderingRegistry.registerEntityRenderingHandler(EntityLimestoneBrick.class, new RenderSnowball(TSContent.materialsTS, 1));
+
+		if (ConfigCore.toasterEnabled) {
+			RenderingRegistry.registerEntityRenderingHandler(EntityToaster.class, new RenderToaster());
+			RenderingRegistry.registerEntityRenderingHandler(EntityToastBrick.class, new RenderSnowball(Items.bread));
+		}
+
 		RenderingRegistry.registerBlockHandler(new DeepTankRender());
 
 		addRenderMappings();

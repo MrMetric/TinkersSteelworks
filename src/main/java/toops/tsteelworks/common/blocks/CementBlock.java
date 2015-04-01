@@ -14,12 +14,6 @@ public class CementBlock extends TSBaseBlock {
 		super(Material.rock, 3F, TEXTURE_NAME);
 	}
 
-// was this intended ? Caus it's causing renderTank weirdness
-/*	@Override
-	public int getRenderBlockPass() {
-		return 1;
-	}*/
-
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister) {

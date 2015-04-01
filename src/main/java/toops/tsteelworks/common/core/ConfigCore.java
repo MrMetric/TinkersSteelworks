@@ -16,6 +16,7 @@ public class ConfigCore {
 	public static boolean enableDuctVacuum;
 	public static int teSlagOutputChance;
 	public static double ingotsPerOre;
+	public static boolean toasterEnabled;
 
 	public static int steamProductionRate;
 	public static String[] blacklistedAlloys;
@@ -86,7 +87,7 @@ public class ConfigCore {
 				"\nFormat: modname:blockname@metadata|capacity (the metadata must either be a serie of numbers and/or ranges (like [1-14]) separated by commas. Capacity is the amount of mB per empty block in the tank). " +
 				"\nex: minecraft:stained_glass@[0-15]|2000 (Note: Each entry must be on a seperate line)").getStringList();
 
-		hardcorePiston = config.get("TConification", "Hardcore Piston", false, "Piston requires tough iron tool rod (note: requires TConstruct)").getBoolean(false);
+		hardcorePiston = config.get("TSteelification", "Hardcore Piston", false, "Piston requires tough iron tool rod (note: requires TConstruct)").getBoolean(false);
 		hardcoreFlintAndSteel = config.get("TSteelification", "Hardcore Flint & Steel", false, "Flint & Steel requires steel ingot").getBoolean(false);
 		hardcoreAnvil = config.get("TSteelification", "Hardcore Anvil", false, "Anvil requires steel materials").getBoolean(false);
 
@@ -94,8 +95,11 @@ public class ConfigCore {
 
 		blacklistedAlloys = config.get("Machines", "Blacklisted dealloys", new String[0], "List of alloy which may not be dealloyed by the steam turbine. List the fluid unlocalized names. One entry per line").getStringList();
 
-		if (config.hasChanged())
+		toasterEnabled = config.get("Random", "I like toasts", true).getBoolean(true);
+
+		if (config.hasChanged()) {
 			config.save();
+		}
 	}
 
 	public static void postInit() {
