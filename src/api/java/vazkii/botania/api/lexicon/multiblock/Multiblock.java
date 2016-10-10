@@ -2,20 +2,24 @@
  * This class was created by <Vazkii>. It's distributed as
  * part of the Botania Mod. Get the Source Code in github:
  * https://github.com/Vazkii/Botania
- * 
+ *
  * Botania is Open Source and distributed under the
  * Botania License: http://botaniamod.net/license.php
- * 
+ *
  * File Created @ [Jun 27, 2015, 2:37:22 PM (GMT)]
  */
 package vazkii.botania.api.lexicon.multiblock;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import vazkii.botania.api.lexicon.multiblock.component.MultiblockComponent;
 
 /**
@@ -25,44 +29,51 @@ import vazkii.botania.api.lexicon.multiblock.component.MultiblockComponent;
  */
 public class Multiblock {
 
-	public List<MultiblockComponent> components = new ArrayList();
-	public List<ItemStack> materials = new ArrayList();
+	public final List<MultiblockComponent> components = new ArrayList<>();
+	public final List<ItemStack> materials = new ArrayList<>();
 
-	public int minX, minY, minZ, maxX, maxY, maxZ, offX, offY, offZ;
+	public BlockPos minPos = BlockPos.ORIGIN;
+	public BlockPos maxPos = BlockPos.ORIGIN;
+	public BlockPos offPos = BlockPos.ORIGIN;
+
+	public final HashMap<BlockPos, MultiblockComponent> locationCache = new HashMap<>();
 
 	/**
 	 * Adds a multiblock component to this multiblock. The component's x y z
 	 * coords should be pivoted to the center of the structure.
 	 */
 	public void addComponent(MultiblockComponent component) {
+		if(getComponentForLocation(component.getRelativePosition()) != null)
+			throw new IllegalArgumentException("Location in multiblock already occupied");
 		components.add(component);
-		changeAxisForNewComponent(component.relPos.posX, component.relPos.posY, component.relPos.posZ);
+		changeAxisForNewComponent(component.getRelativePosition());
 		calculateCostForNewComponent(component);
+		addComponentToLocationCache(component);
 	}
 
 	/**
 	 * Constructs and adds a multiblock component to this multiblock. The x y z
 	 * coords should be pivoted to the center of the structure.
 	 */
-	public void addComponent(int x, int y, int z, Block block, int meta) {
-		addComponent(new MultiblockComponent(new ChunkCoordinates(x, y, z), block, meta));
+	public void addComponent(BlockPos pos, IBlockState state) {
+		addComponent(new MultiblockComponent(pos, state));
 	}
 
-	private void changeAxisForNewComponent(int x, int y, int z) {
-		if(x < minX)
-			minX = x;
-		else if(x > maxX)
-			maxX = x;
+	private void changeAxisForNewComponent(BlockPos pos) {
+		if(pos.getX() < minPos.getX())
+			minPos = new BlockPos(pos.getX(), minPos.getY(), minPos.getZ());
+		else if(pos.getX() > maxPos.getX())
+			maxPos = new BlockPos(pos.getX(), maxPos.getY(), maxPos.getZ());
 
-		if(y < minY)
-			minY = y;
-		else if(y > maxY)
-			maxY = y;
+		if(pos.getY() < minPos.getY())
+			minPos = new BlockPos(minPos.getX(), pos.getY(), minPos.getZ());
+		else if(pos.getY() > maxPos.getY())
+			maxPos = new BlockPos(maxPos.getX(), pos.getY(), maxPos.getZ());
 
-		if(z < minZ)
-			minZ = z;
-		else if(z > maxZ)
-			maxZ = z;
+		if(pos.getZ() < minPos.getZ())
+			minPos = new BlockPos(minPos.getX(), minPos.getY(), pos.getZ());
+		else if(pos.getZ() > maxPos.getZ())
+			maxPos = new BlockPos(maxPos.getX(), maxPos.getY(), pos.getZ());
 	}
 
 	private void calculateCostForNewComponent(MultiblockComponent comp) {
@@ -85,10 +96,8 @@ public class Multiblock {
 		materials.add(stack);
 	}
 
-	public void setRenderOffset(int x, int y, int z) {
-		offX = x;
-		offY = y;
-		offZ = z;
+	public void setRenderOffset(BlockPos pos) {
+		offPos = pos;
 	}
 
 	public List<MultiblockComponent> getComponents() {
@@ -102,6 +111,7 @@ public class Multiblock {
 	public void rotate(double angle) {
 		for(MultiblockComponent comp : getComponents())
 			comp.rotate(angle);
+		updateLocationCache();
 	}
 
 	public Multiblock copy() {
@@ -117,17 +127,21 @@ public class Multiblock {
 	 * to render this multiblock in the world relevant to the 4 cardinal
 	 * orientations.
 	 */
-	public Multiblock[] createRotations() {
-		Multiblock[] blocks = new Multiblock[4];
-		blocks[0] = this;
-		blocks[1] = blocks[0].copy();
-		blocks[1].rotate(Math.PI / 2);
-		blocks[2] = blocks[1].copy();
-		blocks[2].rotate(Math.PI / 2);
-		blocks[3] = blocks[2].copy();
-		blocks[3].rotate(Math.PI / 2);
+	public Map<EnumFacing, Multiblock> createRotations() {
+		Map<EnumFacing, Multiblock> ret = new EnumMap<>(EnumFacing.class);
 
-		return blocks;
+		ret.put(EnumFacing.SOUTH, this);
+
+		ret.put(EnumFacing.WEST, ret.get(EnumFacing.SOUTH).copy());
+		ret.get(EnumFacing.WEST).rotate(Math.PI / 2);
+
+		ret.put(EnumFacing.NORTH, ret.get(EnumFacing.WEST).copy());
+		ret.get(EnumFacing.NORTH).rotate(Math.PI / 2);
+
+		ret.put(EnumFacing.EAST, ret.get(EnumFacing.NORTH).copy());
+		ret.get(EnumFacing.EAST).rotate(Math.PI / 2);
+
+		return ret;
 	}
 
 	/**
@@ -139,15 +153,40 @@ public class Multiblock {
 	}
 
 	public int getXSize() {
-		return Math.abs(minX) + Math.abs(maxX) + 1;
+		return Math.abs(minPos.getX()) + Math.abs(maxPos.getX()) + 1;
 	}
 
 	public int getYSize() {
-		return Math.abs(minY) + Math.abs(maxY) + 1;
+		return Math.abs(minPos.getY()) + Math.abs(maxPos.getY()) + 1;
 	}
 
 	public int getZSize() {
-		return Math.abs(minZ) + Math.abs(maxZ) + 1;
+		return Math.abs(minPos.getZ()) + Math.abs(maxPos.getZ()) + 1;
+	}
+
+	/**
+	 * Rebuilds the location cache
+	 */
+	public void updateLocationCache() {
+		locationCache.clear();
+		for(MultiblockComponent comp : components)
+			addComponentToLocationCache(comp);
+	}
+
+	/**
+	 * Adds a single component to the location cache
+	 */
+	private void addComponentToLocationCache(MultiblockComponent comp) {
+		BlockPos pos = comp.getRelativePosition();
+		locationCache.put(pos, comp);
+	}
+
+	/**
+	 * Gets the component for a given location
+	 * @param pos
+	 */
+	public MultiblockComponent getComponentForLocation(BlockPos pos) {
+		return locationCache.get(pos);
 	}
 
 }
